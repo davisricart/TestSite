@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- At the top of your index.html, in the <head> section -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+
+
+
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty and Grace</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-light: #DBEAFE;
+            --primary-dark: #1E40AF;
+            --clear-button: #4B5563;
+            --download-button: #10B981;
+            --text: #1F2937;
+            --light-text: #6B7280;
+            --border: #E5E7EB;
+            --background: #F9FAFB;
+            --card-background: #FFFFFF;
+            --success: #10B981;
+            --success-light: #DCFCE7;
+            --danger: #EF4444;
+            --danger-light: #FEE2E2;
+            --table-stripe: #F3F4F6;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.2s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; 
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 1.5rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .form-section {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        h1 { 
+            color: var(--text); 
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            letter-spacing: -0.025em;
+            text-align: center;
+        }
+        
+        h3 {
+            color: var(--text);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+        }
+        
+        button { 
+            padding: 0.625rem 1.25rem; 
+            font-weight: 500;
+            border: none; 
+            border-radius: 0.375rem;
+            cursor: pointer; 
+            font-size: 0.875rem;
+            color: white;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.25rem;
+        }
+        
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.4);
+        }
+        
+        #compareButton {
+            background-color: var(--primary);
+        }
+        
+        #compareButton:hover {
+            background-color: var(--primary-dark);
+            box-shadow: var(--shadow);
+        }
+        
+        #clearButton {
+            background-color: var(--clear-button);
+        }
+        
+        #clearButton:hover {
+            background-color: #374151;
+            box-shadow: var(--shadow);
+        }
+        
+        #downloadButton {
+            background-color: var(--download-button);
+        }
+        
+        #downloadButton:hover {
+            background-color: #059669;
+            box-shadow: var(--shadow);
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+            font-size: 0.875rem;
+        }
+        
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 0.625rem 0.75rem;
+            color: var(--text);
+            background-color: var(--card-background);
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            transition: var(--transition);
+            font-size: 0.875rem;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        
+        .card {
+            background-color: var(--card-background);
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .drop-area {
+            border: 2px dashed var(--border);
+            border-radius: 0.5rem;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+            background-color: var(--card-background);
+            cursor: pointer;
+        }
+        
+        .drop-area.highlight {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .drop-area p {
+            color: var(--light-text);
+            font-size: 0.875rem;
+            margin: 0;
+        }
+        
+        .real-file-input {
+            display: none;
+        }
+        
+        #status {
+            color: var(--danger);
+            font-size: 0.875rem;
+            padding: 0.75rem 0;
+            min-height: 2rem;
+        }
+        
+        /* Table styles */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+        
+        th, td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: var(--table-stripe);
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        td:first-child, th:first-child {
+            padding-left: 1.5rem;
+        }
+        
+        td:last-child, th:last-child {
+            padding-right: 1.5rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        /* New styles for file input */
+        .custom-file-input{
+            display:flex;
+            max-width:400px;
+            border:1px solid var(--border);
+            border-radius:8px;
+            overflow:hidden;
+            transition:all 0.2s ease;
+            box-shadow:0 1px 2px rgba(0,0,0,0.05);
+            margin-bottom:0.75rem;
+        }
+        .custom-file-input:hover{
+            border-color:var(--primary);
+        }
+        .custom-file-button{
+            background-color:var(--primary);
+            color:white;
+            padding:10px 14px;
+            border:none;
+            cursor:pointer;
+            font-size:0.9em;
+            white-space:nowrap;
+            border-radius:6px;
+            margin:2px;
+            transition:background-color 0.2s ease;
+            display:flex;
+            align-items:center;
+        }
+        .custom-file-button:hover{
+            background-color:var(--primary-dark);
+        }
+        .custom-file-button svg{
+            margin-right:6px;
+        }
+        .custom-file-name{
+            padding:8px 12px;
+            font-size:0.9em;
+            color:var(--text);
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+            flex-grow:1;
+        }
+    </style>
+
+
+
+
+
+</head>
+<body>
+    <div class="container">
+        <h1>Beauty and Grace</h1>
+        
+        <form id="uploadForm">
+            <div class="form-section">
+                <div class="card">
+                    <div id="usageCounter" style="text-align: right; margin-bottom: 1rem; font-size: 0.875rem;"></div>
+                    <div id="lowUsageWarning" style="display: none; color: var(--danger); text-align: right; margin-bottom: 1rem; font-size: 0.875rem;">Warning: You're running low on usage. Please consider upgrading.</div>
+                    <div class="form-group">
+                        <label class="form-label" for="file1Input">Upload First File</label>
+                        <div class="custom-file-input">
+                            <button type="button" class="custom-file-button" onclick="document.getElementById('file1Input').click()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Select File</button>
+                            <span class="custom-file-name" id="file1Name">No file selected</span>
+                            <input type="file" id="file1Input" class="real-file-input" accept=".xlsx" onchange="updateFileName(this, 'file1Name')">
+                        </div>
+                        <div class="drop-area" id="dropArea1">
+                            <p>Drag & drop your first Excel file here</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="file2Input">Upload Second File</label>
+                        <div class="custom-file-input">
+                            <button type="button" class="custom-file-button" onclick="document.getElementById('file2Input').click()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Select File</button>
+                            <span class="custom-file-name" id="file2Name">No file selected</span>
+                            <input type="file" id="file2Input" class="real-file-input" accept=".xlsx" onchange="updateFileName(this, 'file2Name')">
+                        </div>
+                        <div class="drop-area" id="dropArea2">
+                            <p>Drag & drop your second Excel file here</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="form-group">
+                        <label class="form-label" for="scriptSelect">Select Script</label>
+                        <div id="loadingScripts">Loading available scripts...</div>
+                        <div id="scriptSelectContainer" style="display: none;">
+                            <select id="scriptSelect" class="form-control" required>
+                                <option value="">Select a script...</option>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                            <div id="scriptDescription" style="display: none;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button type="button" id="compareButton">Run Comparison</button>
+                        <button type="button" id="clearButton">Clear Form</button>
+                        <button type="button" id="downloadButton" style="display: none;">Download Results</button>
+                    </div>
+                    <p id="status"></p>
+                </div>
+            </div>
+        </form>
+        
+        <div id="previewArea" class="fade-in" style="display: none;">
+            <div class="card">
+                <h3>Comparison Results</h3>
+                <div class="table-container">
+                    <table id="previewTable"></table>
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 1rem; font-size: 0.875rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="display: inline-block; width: 1rem; height: 1rem; background-color: var(--danger-light); border: 1px solid var(--danger);"></span>
+                        <span>Negative difference</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="display: inline-block; width: 1rem; height: 1rem; background-color: var(--success-light); border: 1px solid var(--success);"></span>
+                        <span>Positive/Zero difference</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication script -->
+    <script>
+        // Firebase configuration - Same as in your auth system
+        const firebaseConfig = {
+        apiKey: "AIzaSyBNdKlkXK2zLWKNbqL9HbnHgq3iHpg7AKs",
+        authDomain: "gr-balance.firebaseapp.com",
+        projectId: "gr-balance",
+        storageBucket: "gr-balance.firebasestorage.app",
+        messagingSenderId: "888884147701",
+        appId: "1:888884147701:web:ec008973a873635aba5cbc"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Check authentication state before loading app
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                // Not authenticated, save current URL and redirect to auth system
+                localStorage.setItem('returnUrl', window.location.href);
+                window.location.href = 'https://yourusername.github.io/grbalance-auth/login.html';
+                return;
+            }
+            
+            // User is authenticated - load user data and continue
+            loadUserData(user.uid);
+        });
+
+        // Function to load user data and check subscription status
+        function loadUserData(userId) {
+            db.collection('users').doc(userId).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        
+                        // Update usage display
+                        updateUsageDisplay(userData);
+                        
+                        // Check if subscription is valid
+                        const now = new Date();
+                        const subscriptionEnd = userData.subscriptionEnd.toDate(); // Convert Firestore timestamp
+                        
+                        if (now > subscriptionEnd) {
+                            alert("Your subscription has expired. Please renew.");
+                            // Optionally redirect to a renewal page
+                        }
+                    } else {
+                        console.error("No user data found!");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error loading user data:", error);
+                });
+        }
+
+        // Update usage display
+        function updateUsageDisplay(userData) {
+            // Check if we have a usage counter element
+            const usageCounter = document.getElementById('usageCounter');
+            if (usageCounter) {
+                const remaining = userData.usageLimit - userData.usageCount;
+                usageCounter.textContent = `${remaining} of ${userData.usageLimit} reconciliations left`;
+                
+                // Show warning if usage is low
+                if (remaining <= 5) {
+                    const warning = document.getElementById('lowUsageWarning');
+                    if (warning) warning.style.display = 'block';
+                }
+            }
+        }
+
+        // Add this to your compareFiles function
+        async function checkUsageLimit() {
+            const user = auth.currentUser;
+            if (!user) return false;
+            
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (!doc.exists) return false;
+            
+            const userData = doc.data();
+            return userData.usageCount < userData.usageLimit;
+        }
+
+        // Add usage tracking to your compareFiles function
+        async function incrementUsage() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            // Increment usage count
+            await db.collection('users').doc(user.uid).update({
+                usageCount: firebase.firestore.FieldValue.increment(1)
+            });
+            
+            // Log this usage
+            await db.collection('usageStats').add({
+                userId: user.uid,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                scriptUsed: document.getElementById('scriptSelect').value,
+                clientRepo: 'CLIENT_REPO_NAME' // Replace with specific client identifier
+            });
+        }
+    </script>
+
+    <!-- Your existing script -->
+    <script>
+        const REPO_OWNER = 'davisricart';
+        const REPO_NAME = 'recontool';
+        const SCRIPT_PATH = 'scripts';
+        
+        // Hardcoded script options with descriptions
+        const scriptOptions = [
+            { 
+                value: "run5", 
+                label: "Main HUB vs Sales", 
+                description: "Compares payment data between two files and highlights discrepancies in transaction amounts."
+            },
+            { 
+                value: "N/A", 
+                label: "N/A", 
+                description: "N/A"
+            }
+        ];
+        
+        // Populate the dropdown with script options
+        function populateScriptDropdown() {
+            const selectElement = document.getElementById('scriptSelect');
+            selectElement.innerHTML = '<option value="">Select a script...</option>';
+            
+            scriptOptions.forEach(script => {
+                const option = document.createElement('option');
+                option.value = script.value;
+                option.textContent = script.label;
+                option.dataset.description = script.description;
+                selectElement.appendChild(option);
+            });
+            
+            // Show the script selector section
+            document.getElementById('scriptSelectContainer').style.display = 'block';
+            document.getElementById('loadingScripts').style.display = 'none';
+            
+            // Add event listener to update description when selection changes
+            selectElement.addEventListener('change', updateScriptDescription);
+        }
+        
+        // Update the description based on selected script
+        function updateScriptDescription() {
+            const selectElement = document.getElementById('scriptSelect');
+            const descriptionElement = document.getElementById('scriptDescription');
+            
+            if (selectElement.selectedIndex > 0) {
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                const description = selectedOption.dataset.description;
+                descriptionElement.textContent = description;
+                descriptionElement.style.display = 'block';
+            } else {
+                descriptionElement.textContent = '';
+                descriptionElement.style.display = 'none';
+            }
+        }
+        
+        // Load scripts when page loads
+        window.addEventListener('DOMContentLoaded', populateScriptDropdown);
+
+        // Drag and drop functionality
+        function setupDragDrop(dropArea, fileInput) {
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            // Highlight drop area when item is dragged over
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            // Handle dropped files
+            dropArea.addEventListener('drop', handleDrop, false);
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            function highlight() {
+                dropArea.classList.add('highlight');
+            }
+
+            function unhighlight() {
+                dropArea.classList.remove('highlight');
+            }
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                // Set the files to the file input
+                fileInput.files = files;
+                
+                // Update the file name display based on the input's id
+                if (fileInput.id === 'file1Input') {
+                    updateFileName(fileInput, 'file1Name');
+                } else if (fileInput.id === 'file2Input') {
+                    updateFileName(fileInput, 'file2Name');
+                }
+                
+                // Trigger change event on file input
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            }
+        }
+
+        // Function to update filename display
+        function updateFileName(input, nameElementId) {
+            const nameElement = document.getElementById(nameElementId);
+            if (input.files.length > 0) {
+                nameElement.textContent = input.files[0].name;
+            } else {
+                nameElement.textContent = 'No file selected';
+            }
+        }
+        
+        // Setup drag and drop for both file inputs
+        setupDragDrop(
+            document.getElementById('dropArea1'), 
+            document.getElementById('file1Input')
+        );
+        setupDragDrop(
+            document.getElementById('dropArea2'), 
+            document.getElementById('file2Input')
+        );
+
+        async function fetchComparisonScript(scriptName) {
+            const formattedScriptName = `${scriptName}.js`;
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${SCRIPT_PATH}/${formattedScriptName}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Code not found, please try again. If the error continues please contact us');
+                }
+                const data = await response.json();
+                const decodedContent = atob(data.content);
+                return decodedContent;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        function readExcelFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = (e) => reject(e);
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        async function compareFiles() {
+            // First check usage limits
+            const hasAvailableUsage = await checkUsageLimit();
+            if (!hasAvailableUsage) {
+                status.textContent = 'You have reached your usage limit. Please upgrade your subscription.';
+                status.style.color = 'var(--danger)';
+                return;
+            }
+            
+            const file1 = document.getElementById('file1Input').files[0];
+            const file2 = document.getElementById('file2Input').files[0];
+            const scriptName = document.getElementById('scriptSelect').value;
+            const status = document.getElementById('status');
+            const previewTable = document.getElementById('previewTable');
+            const previewArea = document.getElementById('previewArea');
+            const downloadButton = document.getElementById('downloadButton');
+
+            status.textContent = '';
+            previewTable.innerHTML = '';
+            previewArea.style.display = 'none';
+            downloadButton.style.display = 'none';
+
+            if (!file1 || !file2) {
+                status.textContent = 'Please upload both files.';
+                return;
+            }
+            if (!scriptName) {
+                status.textContent = 'Please select a script.';
+                return;
+            }
+
+            try {
+                status.textContent = 'Fetching script...';
+                let scriptContent = await fetchComparisonScript(scriptName);
+                
+                // Modify script to filter out "Check" and "Grand Total" entries
+                scriptContent = scriptContent.replace(
+                    /\.filter\(b => !b\.toLowerCase\(\)\.includes\("cash"\)/g, 
+                    '.filter(b => !b.toLowerCase().includes("cash") && !b.toLowerCase().includes("check") && !b.toLowerCase().includes("grand total")'
+                );
+                
+                // Create an async function that uses the compareAndDisplayData from the script
+                const CompareFunction = new Function('XLSX', 'file1', 'file2', 
+                    `return (async () => {
+                        ${scriptContent}
+                        return compareAndDisplayData(XLSX, file1, file2);
+                    })();`
+                );
+
+                status.textContent = 'Reading files...';
+                const content1 = await readExcelFile(file1);
+                const content2 = await readExcelFile(file2);
+
+                status.textContent = 'Comparing files...';
+                let result = await CompareFunction(XLSX, content1, content2);
+
+                // Filter out any "Check" or "Grand Total" rows from the result
+                result = result.filter(row => {
+                    // If this is in the Card Brand comparison section
+                    if (row[0] === "Card Brand" || (row.length > 0 && row[0] === "")) {
+                        return true; // Keep header rows and separator rows
+                    }
+                    
+                    // Remove any row where the first column contains "Check" or "Grand Total"
+                    const firstCol = String(row[0] || "").toLowerCase();
+                    return !(firstCol.includes("check") || firstCol.includes("grand total"));
+                });
+                
+                // Process data for display consistency
+                // Replace blank values with '0' in relevant columns of the Card Brand comparison section
+                let inComparisonSection = false;
+                for (let i = 0; i < result.length; i++) {
+                    if (result[i][0] === "Card Brand") {
+                        inComparisonSection = true;
+                        continue;
+                    }
+                    
+                    if (inComparisonSection && result[i].length > 0) {
+                        // If this is a row in the comparison section (after Card Brand header)
+                        // Ensure Hub Report (index 1), Sales Report (index 2), and Difference (index 3) all have values
+                        if (result[i][0] !== "") { // Skip separator rows
+                            // Replace nulls, undefined, or empty strings with numeric 0
+                            result[i][1] = (result[i][1] === null || result[i][1] === undefined || result[i][1] === "") ? 0 : result[i][1];
+                            result[i][2] = (result[i][2] === null || result[i][2] === undefined || result[i][2] === "") ? 0 : result[i][2];
+                            result[i][3] = (result[i][3] === null || result[i][3] === undefined || result[i][3] === "") ? 0 : result[i][3];
+                        }
+                    }
+                }
+                
+                // First, identify the index of the "Card Brand" header row and the row index
+                // where the comparison section starts
+                let cardBrandHeaderIndex = -1;
+                for (let i = 0; i < result.length; i++) {
+                    if (result[i][0] === "Card Brand") {
+                        cardBrandHeaderIndex = i;
+                        break;
+                    }
+                }
+                
+                // Process each row in the result
+                result.forEach((row, rowIndex) => {
+                    const tr = document.createElement('tr');
+                    
+                    // Check if this row is in the card brand comparison section (after the card brand header)
+                    const isComparisonSection = cardBrandHeaderIndex > -1 && rowIndex > cardBrandHeaderIndex;
+                    // Check if this is the Card Brand header row
+                    const isCardBrandHeader = row[0] === "Card Brand";
+                    
+                    row.forEach((cell, cellIndex) => {
+                        const td = document.createElement(rowIndex === 0 || isCardBrandHeader ? 'th' : 'td');
+                        
+                        // For the comparison section, set empty values to "0" for Hub Report, Sales Report, and Difference
+                        if (isComparisonSection) {
+                            if (cellIndex === 1 || cellIndex === 2 || cellIndex === 3) { // Hub, Sales, or Difference
+                                td.textContent = (cell === 0 || cell) ? cell : '0';
+                            } else {
+                                td.textContent = cell || '';
+                            }
+                        } else {
+                            td.textContent = cell || '';
+                        }
+                        
+                        // Change styling for values in the Difference column (index 3)
+                        if (isComparisonSection && cellIndex === 3 && typeof cell === 'number') {
+                            if (cell < 0) {
+                                // Negative values in red
+                                td.style.backgroundColor = 'var(--danger-light)';
+                                td.style.color = 'var(--danger)';
+                                td.style.fontWeight = '500';
+                            } else {
+                                // Non-negative values in green
+                                td.style.backgroundColor = 'var(--success-light)';
+                                td.style.color = 'var(--success)';
+                                td.style.fontWeight = '500';
+                            }
+                        }
+                        
+                        // Apply styling to Card Brand header row to match other headers
+                        if (isCardBrandHeader) {
+                            td.style.backgroundColor = 'var(--primary-light)';
+                            td.style.color = 'var(--primary-dark)';
+                            td.style.fontWeight = '600';
+                        }
+                        
+                        tr.appendChild(td);
+                    });
+                    previewTable.appendChild(tr);
+                });
+
+                previewArea.style.display = 'block';
+                downloadButton.style.display = 'inline-block';
+                downloadButton.onclick = () => downloadResults(result);
+
+                // After successful comparison, increment usage
+                await incrementUsage();
+
+                status.textContent = 'Comparison complete!';
+                status.style.color = 'var(--success)';
+            } catch (error) {
+                status.textContent = error.message;
+                status.style.color = 'var(--danger)';
+                console.error(error);
+            }
+        }
+
+        function downloadResults(results) {
+            const workbook = XLSX.utils.book_new();
+            const worksheet = XLSX.utils.aoa_to_sheet(results);
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Results');
+            XLSX.writeFile(workbook, 'Comparison_Results.xlsx');
+        }
+        
+        function clearForm() {
+            // Reset file inputs
+            document.getElementById('file1Input').value = '';
+            document.getElementById('file2Input').value = '';
+            
+            // Reset file name displays
+            document.getElementById('file1Name').textContent = 'No file selected';
+            document.getElementById('file2Name').textContent = 'No file selected';
+            
+            // Reset script select dropdown
+            document.getElementById('scriptSelect').selectedIndex = 0;
+            
+            // Hide script description
+            document.getElementById('scriptDescription').style.display = 'none';
+            
+            // Reset status message
+            const status = document.getElementById('status');
+            status.textContent = '';
+            status.style.color = 'var(--danger)';
+            
+            // Hide preview area and results
+            const previewArea = document.getElementById('previewArea');
+            previewArea.style.display = 'none';
+            
+            // Clear preview table
+            const previewTable = document.getElementById('previewTable');
+            previewTable.innerHTML = '';
+            
+            // Hide download button
+            document.getElementById('downloadButton').style.display = 'none';
+        }
+
+        document.getElementById('compareButton').addEventListener('click', compareFiles);
+        document.getElementById('clearButton').addEventListener('click', clearForm);
+    </script>
+</body>
+</html>
